@@ -1,0 +1,153 @@
+const { default: mongoose } = require("mongoose")
+const Inventory = require("../models/Inventory");
+const Trainer = require("../models/Trainer");
+
+exports.getgameinventory = async (req, res) => {
+    const { id, username } = req.user;
+
+    try {
+        const data = await Inventory.find({ owner: new mongoose.Types.ObjectId(id) })
+            .sort({ rank: -1 });
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({ message: "failed", data: "No inventory found" });
+        }
+
+        const totalPets = data.length;
+
+        const finaldata = await Promise.all(data.map(async (item, index) => {
+            const trainerz = await Trainer.findOne({ name: item.type });
+
+            if (!trainerz) {
+                console.log(`Trainer type ${item.type} not found for ${username}`);
+                return null; // Skip if no trainer details found
+            }
+
+            const creaturelimit = (parseInt(item.price) * trainerz.profit) + parseInt(item.price);
+            const limitperday = creaturelimit / trainerz.duration;
+            console.log(creaturelimit)
+            console.log(limitperday)
+            console.log(item.price)
+            console.log(item.price)
+            return {
+                petnumber: index + 1,
+                petid: item._id,
+                petrank: item.rank,
+                petname: item.petname,
+                petlove: item.petlove,
+                petclean: item.petclean,
+                petfeed: item.petfeed,
+                dailyclaim: item.dailyclaim,
+                totalaccumulated: item.totalaccumulated,
+                totalincome: item.totalincome,
+                limittotal: creaturelimit,
+                limitdaily: limitperday
+            };
+        }));
+
+        return res.json({ message: "success", totalPets, data: finaldata.filter(item => item !== null) });
+    } catch (err) {
+        console.log(`There's a problem getting the inventory for ${username}. Error ${err}`);
+        return res.status(400).json({ message: "bad-request", data: "There's a problem getting the inventory. Please contact customer support." });
+    }
+};
+
+exports.getunclaimedincomeinventory = async (req, res) => {
+    const {id, username} = req.user
+
+    const unclaimedincome = await Inventory.aggregate([
+        { 
+            $match: { 
+                owner: new mongoose.Types.ObjectId(id)
+            } 
+        },
+        { 
+            $group: { 
+                _id: null, 
+                totalaccumulated: { $sum: "$totalaccumulated" }
+            } 
+        }
+    ])
+    .catch(err => {
+        console.log(`There's a problem getting the statistics of total purchase for ${username}. Error ${err}`)
+
+        return res.status(400).json({message: "bad-request", data : "There's a problem getting the statistics of total purchased. Please contact customer support."})
+    })
+
+    return res.json({message: "success", data: {
+        totalaccumulated: unclaimedincome.length > 0 ? unclaimedincome[0].totalaccumulated : 0
+    }})
+}
+
+exports.updatePet = async (req, res) => {
+    const { id, username } = req.user
+    const { petid, pts } = req.body;
+
+    if (pts > 10) {
+        return res.status(400).json({ message: "failed", data: 'Points cannot exceed 10' });
+    }
+
+    try {
+        const pet = await Inventory.findOne({ _id: new mongoose.Types.ObjectId(petid), owner: new mongoose.Types.ObjectId(id)});
+        if (!pet) {
+            return res.status(404).json({ message: "failed", data: 'Pet not found' });
+        }
+
+        pet.petlove = Math.min(pet.petlove + pts, 100);
+        pet.petclean = Math.min(pet.petclean + pts, 100);
+        pet.petfeed = Math.min(pet.petfeed + pts, 100);
+        pet.dailyclaim = pet.dailyclaim ? 1 : 0;
+
+        await pet.save();
+
+        res.json({
+            success: true,
+            petId: pet._id,
+            petname: pet.petname,
+            petlove: pet.petlove,
+            petclean: pet.petclean,
+            petfeed: pet.petfeed,
+            dailyclaim: pet.dailyclaim,
+            totalaccumulated: pet.totalaccumulated,
+            totalincome: pet.totalincome
+        });
+    } catch (error) {
+        res.status(500).json({ message: "bad-request", data: "There's a problem with your account. Please contact support for more details." });
+    }
+};
+
+exports.dailyClaim = async (req, res) => {
+
+    const { id, username } = req.user
+    const { petid } = req.body;
+
+    try {
+        const pet = await Inventory.findOne({ _id: new mongoose.Types.ObjectId(petid), owner: new mongoose.Types.ObjectId(id)});
+        if (!pet) {
+            return res.status(404).json({ message: false, data: 'Pet not found' });
+        }
+
+        if (pet.dailyclaim === 1) {
+            return res.status(400).json({ message: false, data: 'Daily claim already made' });
+        }
+
+        const trainerz = await Trainer.findOne({ name: pet.type })
+        .then(data => data)
+        .catch(err => {
+            console.log(`Trainer type ${pet.type} not found for ${username}. Error: ${err}`);
+            return null;
+        });
+
+        const creaturelimit = (parseInt(pet.price) * trainerz.profit) + parseInt(pet.price);
+        const limitperday = creaturelimit / trainerz.duration;
+        pet.dailyclaim = 1;
+        pet.totalaccumulated += limitperday;
+
+        await pet.save();
+
+        return res.status(200).json({ message: "success" });
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: "bad-request", data: "There's a problem with your account. Please contact support for more details." });
+    }
+};
