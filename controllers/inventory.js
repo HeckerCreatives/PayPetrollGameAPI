@@ -82,7 +82,7 @@ exports.getunclaimedincomeinventory = async (req, res) => {
 
 exports.updatePet = async (req, res) => {
     const { id, username } = req.user
-    const { petid, pts } = req.body;
+    const { petid, pts, gametype } = req.body;
 
     if (pts > 10) {
         return res.status(400).json({ message: "failed", data: 'Points cannot exceed 10' });
@@ -94,24 +94,18 @@ exports.updatePet = async (req, res) => {
             return res.status(404).json({ message: "failed", data: 'Pet not found' });
         }
 
-        pet.petlove = Math.min(pet.petlove + pts, 100);
-        pet.petclean = Math.min(pet.petclean + pts, 100);
-        pet.petfeed = Math.min(pet.petfeed + pts, 100);
-        pet.dailyclaim = pet.dailyclaim ? 1 : 0;
+        if(gametype === 'love') {
+            pet.petlove = Math.min(pet.petlove + pts, 100);
+        } else if(gametype === 'clean') {
+            pet.petclean = Math.min(pet.petclean + pts, 100);
+        }
+        else if(gametype === 'feed') {
+            pet.petfeed = Math.min(pet.petfeed + pts, 100);
+        }
 
         await pet.save();
 
-        res.json({
-            success: true,
-            petId: pet._id,
-            petname: pet.petname,
-            petlove: pet.petlove,
-            petclean: pet.petclean,
-            petfeed: pet.petfeed,
-            dailyclaim: pet.dailyclaim,
-            totalaccumulated: pet.totalaccumulated,
-            totalincome: pet.totalincome
-        });
+        return res.status(200).json({ message: "success" })
     } catch (error) {
         res.status(500).json({ message: "bad-request", data: "There's a problem with your account. Please contact support for more details." });
     }
@@ -125,11 +119,15 @@ exports.dailyClaim = async (req, res) => {
     try {
         const pet = await Inventory.findOne({ _id: new mongoose.Types.ObjectId(petid), owner: new mongoose.Types.ObjectId(id)});
         if (!pet) {
-            return res.status(404).json({ message: false, data: 'Pet not found' });
+            return res.status(404).json({ message: "failed", data: 'Pet not found' });
+        }
+
+        if(pet.petlove < 100 || pet.petclean < 100 || pet.petfeed < 100) {
+            return res.status(400).json({ message: "failed", data: 'Pet not ready for daily claim' });
         }
 
         if (pet.dailyclaim === 1) {
-            return res.status(400).json({ message: false, data: 'Daily claim already made' });
+            return res.status(400).json({ message: "failed", data: 'Daily claim already made' });
         }
 
         const trainerz = await Trainer.findOne({ name: pet.type })
