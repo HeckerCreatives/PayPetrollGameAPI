@@ -25,10 +25,7 @@ exports.getgameinventory = async (req, res) => {
 
             const creaturelimit = (parseInt(item.price) * trainerz.profit) + parseInt(item.price);
             const limitperday = creaturelimit / trainerz.duration;
-            console.log(creaturelimit)
-            console.log(limitperday)
-            console.log(item.price)
-            console.log(item.price)
+
             return {
                 petnumber: index + 1,
                 petid: item._id,
@@ -45,13 +42,17 @@ exports.getgameinventory = async (req, res) => {
             };
         }));
 
-        return res.json({ message: "success", totalPets, data: finaldata.filter(item => item !== null) });
+        const formattedData = finaldata.filter(item => item !== null).reduce((acc, item) => {
+            acc[item.petnumber] = item;
+            return acc;
+        }, {});
+
+        return res.json({ message: "success", totalPets, data: formattedData });
     } catch (err) {
         console.log(`There's a problem getting the inventory for ${username}. Error ${err}`);
         return res.status(400).json({ message: "bad-request", data: "There's a problem getting the inventory. Please contact customer support." });
     }
 };
-
 exports.getunclaimedincomeinventory = async (req, res) => {
     const {id, username} = req.user
 
