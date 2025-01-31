@@ -94,13 +94,16 @@ exports.updatePet = async (req, res) => {
             return res.status(404).json({ message: "failed", data: 'Pet not found' });
         }
 
-        if(gametype === 'love') {
-            pet.petlove = Math.min(pet.petlove + pts, 100);
-        } else if(gametype === 'clean') {
-            pet.petclean = Math.min(pet.petclean + pts, 100);
-        }
-        else if(gametype === 'feed') {
-            pet.petfeed = Math.min(pet.petfeed + pts, 100);
+        pet.petlove = Number(pet.petlove) || 0;
+        pet.petclean = Number(pet.petclean) || 0;
+        pet.petfeed = Number(pet.petfeed) || 0;
+
+        if (gametype === "love") {
+            pet.petlove = Math.min(pet.petlove + Number(pts), 100);
+        } else if (gametype === "clean") {
+            pet.petclean = Math.min(pet.petclean + Number(pts), 100);
+        } else if (gametype === "feed") {
+            pet.petfeed = Math.min(pet.petfeed + Number(pts), 100);
         }
 
         await pet.save();
