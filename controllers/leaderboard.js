@@ -1,12 +1,13 @@
 const { default: mongoose } = require("mongoose");
-const Leaderboard = require("../models/Leaderboard")
+const Leaderboard = require("../models/Leaderboard");
+const Maintenance = require("../models/Maintenance");
 
 
 // game api
 exports.getLeaderboard = async (req, res) => {
     const { id, username } = req.user;
 
-    Leaderboard.find({})
+    await Leaderboard.find({})
         .populate('owner')
         .sort({ amount: -1 })
         .limit(10)
@@ -17,6 +18,7 @@ exports.getLeaderboard = async (req, res) => {
                 return res.status(404).json({ message: "failed", data: "No leaderboard found" });
             }
 
+            const eventmainte = await Maintenance.findOne({ type: "eventgame" });
             const userRank = await Leaderboard.countDocuments({ amount: { $gt: user.amount } });
             const finaldata = {
                 topplayers: top10.reduce((acc, item, index) => {
@@ -30,6 +32,10 @@ exports.getLeaderboard = async (req, res) => {
                     rank: userRank + 1,
                     player_name: user.owner.username,
                     player_score: user.amount
+                },
+                event: {
+                    type: eventmainte.type,
+                    value: eventmainte.value
                 }
             };
 
