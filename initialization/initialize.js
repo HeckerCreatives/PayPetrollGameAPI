@@ -71,7 +71,7 @@ exports.initialize = async () => {
 
             console.log(`There's a problem creating admin fee wallet Error: ${err}`)
 
-            return res.status(400).json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
+            return res.json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
         })
 
     }

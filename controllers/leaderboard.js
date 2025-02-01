@@ -43,7 +43,7 @@ exports.getLeaderboard = async (req, res) => {
         })
         .catch(err => {
             console.log(`There's a problem getting the leaderboard for ${username}. Error ${err}`);
-            return res.status(400).json({ message: "bad-request", data: "There's a problem getting the leaderboard. Please contact customer support." });
+            return res.json({ message: "bad-request", data: "There's a problem getting the leaderboard. Please contact customer support." });
         });
 };
 exports.sendeventpoints = async (req, res) => {
@@ -51,7 +51,7 @@ exports.sendeventpoints = async (req, res) => {
     const { pts } = req.body
 
     if (!pts || isNaN(pts) || pts < 0){
-        return res.status(400).json({ message: "bad-request", data: "Invalid amount" });
+        return res.json({ message: "bad-request", data: "Invalid amount" });
     }
 
     const user = await Leaderboard.findOne({ owner: new mongoose.Types.ObjectId(id) })

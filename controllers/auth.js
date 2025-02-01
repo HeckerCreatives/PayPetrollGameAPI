@@ -24,33 +24,33 @@ exports.register = async (req, res) => {
     const { username, password, referral, phonenumber } = req.body
 
     if (username.length < 5 || username.length > 40){
-        return res.status(400).json({message: "failed", data: "Minimum of 5 and maximum of 20 characters only for username! Please try again."})
+        return res.json({message: "failed", data: "Minimum of 5 and maximum of 20 characters only for username! Please try again."})
     }
 
     const usernameRegex = /^[a-zA-Z0-9]+$/;
     
     if (!usernameRegex.test(username)){
-        return res.status(400).json({message: "failed", data: "Please don't use special characters for username! Please try again."})
+        return res.json({message: "failed", data: "Please don't use special characters for username! Please try again."})
     }
 
     if (password.length < 5 || password.length > 20){
-        return res.status(400).json({message: "failed", data: "Minimum of 5 and maximum of 20 characters only for password! Please try again."})
+        return res.json({message: "failed", data: "Minimum of 5 and maximum of 20 characters only for password! Please try again."})
     }
 
     const passwordRegex = /^[a-zA-Z0-9\[\]!@#*]+$/;
 
     if (!passwordRegex.test(password)){
-        return res.status(400).json({message: "failed", data: "Only []!@#* are supported special characters for password! Please try again."})
+        return res.json({message: "failed", data: "Only []!@#* are supported special characters for password! Please try again."})
     }
 
     if (phonenumber.length != 11){
-        return res.status(400).json({message: "failed", data: "Please enter your right phone number! 11 numbers are needed to be entered."})
+        return res.json({message: "failed", data: "Please enter your right phone number! 11 numbers are needed to be entered."})
     }
 
     const phonenumberRegex = /^[0-9]+$/;
 
     if (!phonenumberRegex.test(phonenumber)){
-        return res.status(400).json({message: "failed", data: "Please input a valid email and try again."})
+        return res.json({message: "failed", data: "Please input a valid email and try again."})
     }
 
     const searchreferral = await Users.findOne({_id: new mongoose.Types.ObjectId(referral)})
@@ -58,13 +58,13 @@ exports.register = async (req, res) => {
     .catch(err => {
         console.log(`There's a problem searching referral for ${username} referralid: ${referral} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "Referral does not exist! Please don't tamper with the url." })
+        return res.json({ message: "bad-request", data: "Referral does not exist! Please don't tamper with the url." })
     })
 
     if (!searchreferral){
         console.log(`referral id not exist for ${username} referralid: ${referral}`)
 
-        return res.status(400).json({ message: "bad-request", data: "Referral does not exist! Please don't tamper with the url." })
+        return res.json({ message: "bad-request", data: "Referral does not exist! Please don't tamper with the url." })
     }
 
     const user = await Users.findOne({username: { $regex: new RegExp('^' + username + '$', 'i') }})
@@ -73,11 +73,11 @@ exports.register = async (req, res) => {
 
         console.log(`There's a problem searching user for ${username} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
+        return res.json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
     })
 
     if (user){
-        return res.status(400).json({message: "failed", data: "You already registered this account! Please login if this is yours."})
+        return res.json({message: "failed", data: "You already registered this account! Please login if this is yours."})
     }
 
     const player = await Users.create({username: username, password: password.toLowerCase(), referral: new mongoose.Types.ObjectId(referral), gametoken: "", webtoken: "", bandate: "none", banreason: "", status: "active"})
@@ -85,7 +85,7 @@ exports.register = async (req, res) => {
 
         console.log(`There's a problem creating user for ${username} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
+        return res.json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
     })
 
 
@@ -97,7 +97,7 @@ exports.register = async (req, res) => {
 
         console.log(`There's a problem creating user details for ${player._id} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
+        return res.json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
     })
 
     const wallets = ["fiatbalance", "gamebalance", "commissionbalance"]
@@ -113,7 +113,7 @@ exports.register = async (req, res) => {
 
             console.log(`There's a problem creating user wallet for ${player._id} with type ${data} Error: ${err}`)
 
-            return res.status(400).json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
+            return res.json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
         })
     })
 
@@ -152,10 +152,10 @@ exports.authlogin = async(req, res) => {
                     token: jwtoken
                 }})
             })
-            .catch(err => res.status(400).json({ message: "bad-request2", data: "There's a problem with your account! There's a problem with your account! Please contact customer support for more details."  + err }))
+            .catch(err => res.json({ message: "bad-request2", data: "There's a problem with your account! There's a problem with your account! Please contact customer support for more details."  + err }))
         }
     })
-    .catch(err => res.status(400).json({ message: "bad-request1", data: "There's a problem with your account! There's a problem with your account! Please contact customer support for more details." }))
+    .catch(err => res.json({ message: "bad-request1", data: "There's a problem with your account! There's a problem with your account! Please contact customer support for more details." }))
 }
 
 
@@ -163,27 +163,27 @@ exports.registerstaffs = async(req, res) => {
     const {username, password} = req.body
 
     if (username == "" || password == ""){
-        return res.status(400).json({ message: "bad-request", data: "Please complete the form first before saving." })
+        return res.json({ message: "bad-request", data: "Please complete the form first before saving." })
     }
 
     if (username.length < 5 || username.length > 40){
-        return res.status(400).json({message: "failed", data: "Minimum of 5 and maximum of 20 characters only for username! Please try again."})
+        return res.json({message: "failed", data: "Minimum of 5 and maximum of 20 characters only for username! Please try again."})
     }
 
     const usernameRegex = /^[a-zA-Z0-9]+$/;
     
     if (!usernameRegex.test(username)){
-        return res.status(400).json({message: "failed", data: "Please don't use special characters for username! Please try again."})
+        return res.json({message: "failed", data: "Please don't use special characters for username! Please try again."})
     }
 
     if (password.length < 5 || password.length > 20){
-        return res.status(400).json({message: "failed", data: "Minimum of 5 and maximum of 20 characters only for password! Please try again."})
+        return res.json({message: "failed", data: "Minimum of 5 and maximum of 20 characters only for password! Please try again."})
     }
 
     const passwordRegex = /^[a-zA-Z0-9\[\]!@#*]+$/;
 
     if (!passwordRegex.test(password)){
-        return res.status(400).json({message: "failed", data: "Only []!@#* are supported special characters for password! Please try again."})
+        return res.json({message: "failed", data: "Only []!@#* are supported special characters for password! Please try again."})
     }
 
     const staff = await Staffusers.findOne({username: { $regex: new RegExp('^' + username + '$', 'i') }})
@@ -192,11 +192,11 @@ exports.registerstaffs = async(req, res) => {
 
         console.log(`There's a problem searching staff user for ${username} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
+        return res.json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
     })
 
     if (staff){
-        return res.status(400).json({message: "failed", data: "You already registered this account! Please login if this is yours."})
+        return res.json({message: "failed", data: "You already registered this account! Please login if this is yours."})
     }
 
     const userdata = await Staffusers.create({username: username, password: password.toLowerCase(), webtoken: "", status: "active", auth: "admin"})
@@ -205,7 +205,7 @@ exports.registerstaffs = async(req, res) => {
 
         console.log(`There's a problem creating staff user for ${username} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
+        return res.json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
     })
 
     
@@ -216,7 +216,7 @@ exports.registerstaffs = async(req, res) => {
 
         console.log(`There's a problem creating admin fee wallet for ${username} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
+        return res.json({ message: "bad-request", data: "There's a problem registering your account. Please try again." })
     })
 
     return res.json({message: "success"})
@@ -235,13 +235,13 @@ exports.getreferralusername = async (req, res) => {
 
         console.log(`There's a problem searching user for ${id} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem getting referral, please contact support for more details." })
+        return res.json({ message: "bad-request", data: "There's a problem getting referral, please contact support for more details." })
     })
 
     if (!user){
         console.log(`Referral id does not exist for ${id}`)
 
-        return res.status(400).json({ message: "bad-request", data: "Referral id does not exist, please contact support for more details." })
+        return res.json({ message: "bad-request", data: "Referral id does not exist, please contact support for more details." })
     }
 
     return res.json({message: "success", data: user.username})
@@ -289,8 +289,8 @@ exports.gameidlogin = async(req, res) => {
                     token: jwtoken
                 }})
             })
-            .catch(err => res.status(400).json({ message: "bad-request2", data: "There's a problem with your account! There's a problem with your account! Please contact customer support for more details."  + err }))
+            .catch(err => res.json({ message: "bad-request2", data: "There's a problem with your account! There's a problem with your account! Please contact customer support for more details."  + err }))
         
     })
-    .catch(err => res.status(400).json({ message: "bad-request1", data: "There's a problem with your account! There's a problem with your account! Please contact customer support for more details." }))
+    .catch(err => res.json({ message: "bad-request1", data: "There's a problem with your account! There's a problem with your account! Please contact customer support for more details." }))
 }

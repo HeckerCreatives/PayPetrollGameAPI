@@ -21,11 +21,11 @@ exports.getuserdetails = async (req, res) => {
 
         console.log(`There's a problem getting user details for ${username} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem getting your user details. Please contact customer support." })
+        return res.json({ message: "bad-request", data: "There's a problem getting your user details. Please contact customer support." })
     })
 
     if (!details){
-        return res.status(400).json({ message: "bad-request", data: "There's a problem with your account! Please contact customer support." })
+        return res.json({ message: "bad-request", data: "There's a problem with your account! Please contact customer support." })
     }
 
     const data = {
@@ -55,11 +55,11 @@ exports.getuserdetailssuperadmin = async (req, res) => {
 
         console.log(`There's a problem getting user details for ${userid} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem getting your user details. Please contact customer support." })
+        return res.json({ message: "bad-request", data: "There's a problem getting your user details. Please contact customer support." })
     })
 
     if (!details){
-        return res.status(400).json({ message: "failed", data: "No user found! Please select a valid user." })
+        return res.json({ message: "failed", data: "No user found! Please select a valid user." })
     }
 
     const data = {
@@ -75,7 +75,7 @@ exports.changepassworduser = async (req, res) => {
     const {password} = req.body
     
     if (password == ""){
-        return res.status(400).json({ message: "failed", data: "Please complete the form first before saving!" })
+        return res.json({ message: "failed", data: "Please complete the form first before saving!" })
     }
 
     const hashPassword = bcrypt.hashSync(password, 10)
@@ -85,7 +85,7 @@ exports.changepassworduser = async (req, res) => {
 
         console.log(`There's a problem changing password user for ${username} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem changing your password. Please contact customer support." })
+        return res.json({ message: "bad-request", data: "There's a problem changing your password. Please contact customer support." })
     })
 
     return res.json({message: "success"})
@@ -96,7 +96,7 @@ exports.changepassworduserforadmin = async (req, res) => {
     const {playerid, password} = req.body
     
     if (password == ""){
-        return res.status(400).json({ message: "failed", data: "Please complete the form first before saving!" })
+        return res.json({ message: "failed", data: "Please complete the form first before saving!" })
     }
 
     const hashPassword = bcrypt.hashSync(password, 10)
@@ -106,7 +106,7 @@ exports.changepassworduserforadmin = async (req, res) => {
 
         console.log(`There's a problem changing password user for ${username}, player: ${playerid} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem changing password. Please contact customer support." })
+        return res.json({ message: "bad-request", data: "There's a problem changing password. Please contact customer support." })
     })
 
     return res.json({message: "success"})
@@ -117,7 +117,7 @@ exports.updateuserprofile = async (req, res) => {
     const {phonenumber, firstname, lastname, address, city, country, postalcode, paymentmethod, accountnumber} = req.body
 
     if (firstname == "" || lastname == "" || address == "" || city == "" || country == "" || postalcode == "" || paymentmethod == "" || accountnumber == ""){
-        return res.status(400).json({ message: "bad-request", data: "Please complete the form before updating!." })
+        return res.json({ message: "bad-request", data: "Please complete the form before updating!." })
     }
 
     await Userdetails.findOneAndUpdate({owner: new mongoose.Types.ObjectId(id)}, {firstname: firstname, lastname: lastname, address: address, city: city, country: country, postalcode: postalcode, paymentmethod: paymentmethod, accountnumber: accountnumber, phonenumber: phonenumber})
@@ -125,7 +125,7 @@ exports.updateuserprofile = async (req, res) => {
 
         console.log(`There's a problem saving user details for ${username} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem updating your user details. Please contact customer support." })
+        return res.json({ message: "bad-request", data: "There's a problem updating your user details. Please contact customer support." })
     })
 
     return res.json({message: "success"})
@@ -141,11 +141,11 @@ exports.getuserinformation = async (req, res) => {
 
         console.log(`There's a problem getting user information for ${username} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem getting your user information. Please contact customer support." })
+        return res.json({ message: "bad-request", data: "There's a problem getting your user information. Please contact customer support." })
     })
 
     if (!user){
-        return res.status(400).json({ message: "bad-request", data: "There's a problem with your account! Please contact customer support." })
+        return res.json({ message: "bad-request", data: "There's a problem with your account! Please contact customer support." })
     }
 
     const leaderboardrank = await Leaderboard.findOne({ owner: new mongoose.Types.ObjectId(id) })
@@ -154,7 +154,7 @@ exports.getuserinformation = async (req, res) => {
 
         console.log(`There's a problem getting leaderboard for ${username} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem getting your leaderboard. Please contact customer support." })
+        return res.json({ message: "bad-request", data: "There's a problem getting your leaderboard. Please contact customer support." })
     })
 
     const userranking = await Leaderboard.countDocuments({ amount: { $gt: leaderboardrank.amount } })   

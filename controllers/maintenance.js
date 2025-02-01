@@ -9,7 +9,7 @@ exports.changemaintenance = async (req, res) => {
 
         console.log(`There's a problem updating maintenance data for ${username} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem getting your user details. Please contact customer support." })
+        return res.json({ message: "bad-request", data: "There's a problem getting your user details. Please contact customer support." })
     })
 
     return res.json({message: "success"})
@@ -25,7 +25,7 @@ exports.geteventmainte = async (req, res) => {
 
         console.log(`There's a problem getting maintenance data for ${username} Error: ${err}`)
 
-        return res.status(400).json({ message: "bad-request", data: "There's a problem getting your user details. Please contact customer support." })
+        return res.json({ message: "bad-request", data: "There's a problem getting your user details. Please contact customer support." })
     })
 
     const data = {
