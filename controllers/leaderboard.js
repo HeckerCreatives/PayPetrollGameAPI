@@ -15,7 +15,7 @@ exports.getLeaderboard = async (req, res) => {
             const user = await Leaderboard.findOne({ owner: new mongoose.Types.ObjectId(id) });
 
             if (!user) {
-                return res.status(404).json({ message: "failed", data: "No leaderboard found" });
+                return res.json({ message: "failed", data: "No leaderboard found" });
             }
 
             const eventmainte = await Maintenance.findOne({ type: "eventgame" });
@@ -57,7 +57,7 @@ exports.sendeventpoints = async (req, res) => {
     const user = await Leaderboard.findOne({ owner: new mongoose.Types.ObjectId(id) })
 
     if (!user){
-        return res.status(404).json({ message: "failed", data: "No leaderboard found" });
+        return res.json({ message: "failed", data: "No leaderboard found" });
     }
 
     user.amount += pts

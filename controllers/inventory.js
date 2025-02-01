@@ -10,7 +10,7 @@ exports.getgameinventory = async (req, res) => {
             .sort({ rank: -1 });
 
         if (!data || data.length === 0) {
-            return res.status(404).json({ message: "failed", data: "No inventory found" });
+            return res.json({ message: "failed", data: "No inventory found" });
         }
 
         const totalPets = data.length;
@@ -91,7 +91,7 @@ exports.updatePet = async (req, res) => {
     try {
         const pet = await Inventory.findOne({ _id: new mongoose.Types.ObjectId(petid), owner: new mongoose.Types.ObjectId(id)});
         if (!pet) {
-            return res.status(404).json({ message: "failed", data: 'Pet not found' });
+            return res.json({ message: "failed", data: 'Pet not found' });
         }
 
         pet.petlove = Number(pet.petlove) || 0;
@@ -108,9 +108,9 @@ exports.updatePet = async (req, res) => {
 
         await pet.save();
 
-        return res.status(200).json({ message: "success" })
+        return res.json({ message: "success" })
     } catch (error) {
-        res.status(500).json({ message: "bad-request", data: "There's a problem with your account. Please contact support for more details." });
+        res.json({ message: "bad-request", data: "There's a problem with your account. Please contact support for more details." });
     }
 };
 
@@ -122,7 +122,7 @@ exports.dailyClaim = async (req, res) => {
     try {
         const pet = await Inventory.findOne({ _id: new mongoose.Types.ObjectId(petid), owner: new mongoose.Types.ObjectId(id)});
         if (!pet) {
-            return res.status(404).json({ message: "failed", data: 'Pet not found' });
+            return res.json({ message: "failed", data: 'Pet not found' });
         }
 
         if(pet.petlove < 100 || pet.petclean < 100 || pet.petfeed < 100) {
@@ -147,9 +147,9 @@ exports.dailyClaim = async (req, res) => {
 
         await pet.save();
 
-        return res.status(200).json({ message: "success" });
+        return res.json({ message: "success" });
     } catch (error) {
         console.error(error)
-        res.status(500).json({ message: "bad-request", data: "There's a problem with your account. Please contact support for more details." });
+        res.json({ message: "bad-request", data: "There's a problem with your account. Please contact support for more details." });
     }
 };

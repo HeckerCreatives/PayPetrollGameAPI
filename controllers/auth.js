@@ -129,7 +129,7 @@ exports.authlogin = async(req, res) => {
     .then(async user => {
         if (user && (await user.matchPassword(password))){
             if (user.status != "active"){
-                return res.status(401).json({ message: 'failed', data: `Your account had been ${user.status}! Please contact support for more details.` });
+                return res.json({ message: 'failed', data: `Your account had been ${user.status}! Please contact support for more details.` });
             }
 
             const token = await encrypt(privateKey)
@@ -144,7 +144,7 @@ exports.authlogin = async(req, res) => {
                     jwtoken = await jsonwebtokenPromisified.sign(payload, privateKey, { algorithm: 'RS256' });
                 } catch (error) {
                     console.error('Error signing token:', error.message);
-                    return res.status(500).json({ error: 'Internal Server Error', data: "There's a problem signing in! Please contact customer support for more details! Error 004" });
+                    return res.json({ error: 'Internal Server Error', data: "There's a problem signing in! Please contact customer support for more details! Error 004" });
                 }
 
                 return res.json({message: "success", data: {
@@ -226,7 +226,7 @@ exports.getreferralusername = async (req, res) => {
     const {id} = req.query
 
     if (!id){
-        return res.status(401).json({message: "failed", data: "No referral found! Please don't tamper with the URL."})
+        return res.json({message: "failed", data: "No referral found! Please don't tamper with the URL."})
     }
 
     const user = await Users.findOne({_id: new mongoose.Types.ObjectId(id)})
@@ -266,7 +266,7 @@ exports.gameidlogin = async(req, res) => {
     Users.findOne({ gameid: { $regex: new RegExp('^' + gameid + '$', 'i') } })
     .then(async user => {
             if (user.status != "active"){
-                return res.status(401).json({ message: 'failed', data: `Your account had been ${user.status}! Please contact support for more details.` });
+                return res.json({ message: 'failed', data: `Your account had been ${user.status}! Please contact support for more details.` });
             }
 
             const token = await encrypt(privateKey)
@@ -281,7 +281,7 @@ exports.gameidlogin = async(req, res) => {
                     jwtoken = await jsonwebtokenPromisified.sign(payload, privateKey, { algorithm: 'RS256' });
                 } catch (error) {
                     console.error('Error signing token:', error.message);
-                    return res.status(500).json({ error: 'Internal Server Error', data: "There's a problem signing in! Please contact customer support for more details! Error 004" });
+                    return res.json({ error: 'Internal Server Error', data: "There's a problem signing in! Please contact customer support for more details! Error 004" });
                 }
 
                 return res.json({message: "success", data: {
