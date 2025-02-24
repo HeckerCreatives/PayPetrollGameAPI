@@ -19,6 +19,10 @@ const inventoryShema = new mongoose.Schema(
             type: Number,
             index: true,
         },
+        profit: {
+            type: Number,
+            index: true,
+        },
         petname: {
             type: String,
             index: true,
@@ -51,8 +55,10 @@ const inventoryShema = new mongoose.Schema(
         },
         startdate: {
             type: String,
-            
-        }
+        },
+        duration: {
+            type: Number
+        },
     },
     {
         timestamps: true

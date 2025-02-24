@@ -16,15 +16,9 @@ exports.getgameinventory = async (req, res) => {
         const totalPets = data.length;
 
         const finaldata = await Promise.all(data.map(async (item, index) => {
-            const trainerz = await Trainer.findOne({ name: item.type });
 
-            if (!trainerz) {
-                console.log(`Trainer type ${item.type} not found for ${username}`);
-                return null; // Skip if no trainer details found
-            }
-
-            const creaturelimit = (parseInt(item.price) * trainerz.profit) + parseInt(item.price);
-            const limitperday = creaturelimit / trainerz.duration;
+            const creaturelimit = (parseInt(item.price) * item.profit) + parseInt(item.price);
+            const limitperday = creaturelimit / item.duration;
 
             return {
                 petnumber: index + 1,
@@ -133,15 +127,8 @@ exports.dailyClaim = async (req, res) => {
             return res.json({ message: "failed", data: 'Daily claim already made' });
         }
 
-        const trainerz = await Trainer.findOne({ name: pet.type })
-        .then(data => data)
-        .catch(err => {
-            console.log(`Trainer type ${pet.type} not found for ${username}. Error: ${err}`);
-            return null;
-        });
-
-        const creaturelimit = (parseInt(pet.price) * trainerz.profit) + parseInt(pet.price);
-        const limitperday = creaturelimit / trainerz.duration;
+        const creaturelimit = (parseInt(pet.price) * pet.profit) + parseInt(pet.price);
+        const limitperday = creaturelimit / pet.duration;
         pet.dailyclaim = 1;
         pet.totalaccumulated += limitperday;
 
