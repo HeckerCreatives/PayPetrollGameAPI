@@ -88,6 +88,10 @@ exports.updatePet = async (req, res) => {
             return res.json({ message: "failed", data: 'Pet not found' });
         }
 
+        if(pet.totalaccumulated >= pet.totalincome){
+            return res.json({ message: "failed", data: 'Pet is ready to be claimed!' });
+        }
+
         pet.petlove = Number(pet.petlove) || 0;
         pet.petclean = Number(pet.petclean) || 0;
         pet.petfeed = Number(pet.petfeed) || 0;
@@ -117,6 +121,10 @@ exports.dailyClaim = async (req, res) => {
         const pet = await Inventory.findOne({ _id: new mongoose.Types.ObjectId(petid), owner: new mongoose.Types.ObjectId(id)});
         if (!pet) {
             return res.json({ message: "failed", data: 'Pet not found' });
+        }
+
+        if(pet.totalaccumulated >= pet.totalincome){
+            return res.json({ message: "failed", data: 'Pet is ready to be claimed!' });
         }
 
         if(pet.petlove < 100 || pet.petclean < 100 || pet.petfeed < 100) {
