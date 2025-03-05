@@ -5,6 +5,7 @@ const Users = require("../models/Users")
 const Userdetails = require("../models/Userdetails")
 const Userwallets = require("../models/Userwallets")
 const StaffUserwallets = require("../models/Staffuserwallets")
+const Leaderboard = require("../models/Leaderboard")
 
 
 exports.initialize = async () => {
@@ -75,6 +76,33 @@ exports.initialize = async () => {
         })
 
     }
+
+    // initialize leaderboard for user that dont have leaderboard
+    const users = await Users.find()
+    .then(data => data)
+    .catch(err => {
+        console.log(`There's a problem getting user data ${err}`)
+        return
+    })
+
+
+
+        for (let i = 0; i < users.length; i++) {
+            const user = users[i];
+
+            const leaderboard = await Leaderboard.findOne({ owner: new mongoose.Types.ObjectId(user._id) })
+            .then(data => data)
+            .catch(err => {
+                console.log(`There's a problem getting leaderboard data ${err}`)
+                return
+            })
+
+            if(!leaderboard){
+                await Leaderboard.create({ owner: new mongoose.Types.ObjectId(user._id), amount: 0})
+                console.log(`Leaderboard created for ${user.username}`)
+            }
+        }
+    
 
     const trainer = await Trainer.find()
     .then(data => data)
