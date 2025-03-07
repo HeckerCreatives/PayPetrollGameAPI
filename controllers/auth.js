@@ -268,7 +268,7 @@ exports.gameidlogin = async(req, res) => {
     if (referrer) {
         const url = new URL(referrer);
         gameid = url.searchParams.get('userid'); // Extract userid from the referrer
-        console.log('Extracted User ID:', userId);
+        console.log('Extracted User ID:', gameid);
     } else {
         return res.json({ message: "nouserid", data: "Cannot get the userid! Please don't tamper with the url" })
     }
