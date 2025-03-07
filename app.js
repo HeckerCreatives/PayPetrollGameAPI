@@ -33,7 +33,7 @@ mongoose
   })
   .then(() => {
     //  Uncomment when you created initialize function for the server
-    initialize();
+    // initialize();
     console.log("MongoDB Connected");
   })
   .catch((err) => console.log(err));
