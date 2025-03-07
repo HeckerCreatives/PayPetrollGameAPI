@@ -14,6 +14,7 @@ const privateKey = fs.readFileSync(path.resolve(__dirname, "../keys/private-key.
 const { default: mongoose } = require("mongoose");
 const Userwallets = require("../models/Userwallets");
 const StaffUserwallets = require("../models/Staffuserwallets");
+const { URL } = require('url'); // Native URL parser in Node.js
 
 const encrypt = async password => {
     const salt = await bcrypt.genSalt(10);
@@ -261,7 +262,16 @@ exports.automaticlogin = async (req, res) => {
 }
 
 exports.gameidlogin = async(req, res) => {
-    const { gameid } = req.query;
+    const referrer = req.get('referer');
+    let gameid = "";
+
+    if (referrer) {
+        const url = new URL(referrer);
+        gameid = url.searchParams.get('userid'); // Extract userid from the referrer
+        console.log('Extracted User ID:', userId);
+    } else {
+        return res.json({ message: "nouserid", data: "Cannot get the userid! Please don't tamper with the url" })
+    }
 
     Users.findOne({ gameid: { $regex: new RegExp('^' + gameid + '$', 'i') } })
     .then(async user => {
