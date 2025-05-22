@@ -82,13 +82,23 @@ exports.updatePet = async (req, res) => {
         return res.json({ message: "failed", data: 'Points cannot exceed 10' });
     }
 
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
-        const pet = await Inventory.findOne({ _id: new mongoose.Types.ObjectId(petid), owner: new mongoose.Types.ObjectId(id)});
+        const pet = await Inventory.findOne(
+            { _id: new mongoose.Types.ObjectId(petid), owner: new mongoose.Types.ObjectId(id)},
+            null,
+            { session }
+        );
+
         if (!pet) {
+            await session.abortTransaction();
             return res.json({ message: "failed", data: 'Pet not found' });
         }
 
         if(pet.totalaccumulated >= pet.totalincome){
+            await session.abortTransaction();
             return res.json({ message: "failed", data: 'Pet is ready to be claimed!' });
         }
 
@@ -104,34 +114,48 @@ exports.updatePet = async (req, res) => {
             pet.petfeed = Math.round(Math.min(pet.petfeed + Number(pts), 100));
         }
 
-        await pet.save();
+        await pet.save({ session });
+        await session.commitTransaction();
 
         return res.json({ message: "success" })
     } catch (error) {
+        await session.abortTransaction();
         res.json({ message: "bad-request", data: "There's a problem with your account. Please contact support for more details." });
+    } finally {
+        session.endSession();
     }
 };
-
 exports.dailyClaim = async (req, res) => {
-
     const { id, username } = req.user
     const { petid } = req.body;
 
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
-        const pet = await Inventory.findOne({ _id: new mongoose.Types.ObjectId(petid), owner: new mongoose.Types.ObjectId(id)});
+        const pet = await Inventory.findOne(
+            { _id: new mongoose.Types.ObjectId(petid), owner: new mongoose.Types.ObjectId(id)},
+            null,
+            { session }
+        );
+
         if (!pet) {
+            await session.abortTransaction();
             return res.json({ message: "failed", data: 'Pet not found' });
         }
 
         if(pet.totalaccumulated >= pet.totalincome){
+            await session.abortTransaction();
             return res.json({ message: "failed", data: 'Pet is ready to be claimed!' });
         }
 
         if(pet.petlove < 100 || pet.petclean < 100 || pet.petfeed < 100) {
+            await session.abortTransaction();
             return res.json({ message: "failed", data: 'Pet not ready for daily claim' });
         }
 
         if (pet.dailyclaim === 1) {
+            await session.abortTransaction();
             return res.json({ message: "failed", data: 'Daily claim already made' });
         }
 
@@ -140,11 +164,15 @@ exports.dailyClaim = async (req, res) => {
         pet.dailyclaim = 1;
         pet.totalaccumulated += limitperday;
 
-        await pet.save();
+        await pet.save({ session });
+        await session.commitTransaction();
 
         return res.json({ message: "success" });
     } catch (error) {
-        console.error(error)
+        await session.abortTransaction();
+        console.error(error);
         res.json({ message: "bad-request", data: "There's a problem with your account. Please contact support for more details." });
+    } finally {
+        session.endSession();
     }
 };
