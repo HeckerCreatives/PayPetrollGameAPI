@@ -14,12 +14,14 @@ exports.getLeaderboard = async (req, res) => {
         .then(async (top10) => {
             const user = await Leaderboard.findOne({ owner: new mongoose.Types.ObjectId(id) });
 
-            if (!user) {
-                return res.json({ message: "failed", data: "No leaderboard found" });
+            let amount = 0
+            
+            if (user) {
+                amount = user.amount
             }
 
             const eventmainte = await Maintenance.findOne({ type: "eventgame" });
-            const userRank = await Leaderboard.countDocuments({ amount: { $gt: user.amount } });
+            const userRank = await Leaderboard.countDocuments({ amount: !user ?  { $gt: amount } });
             const finaldata = {
                 topplayers: top10.reduce((acc, item, index) => {
                     acc[index + 1] = {
