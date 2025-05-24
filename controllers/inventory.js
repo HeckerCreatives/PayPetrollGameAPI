@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose")
 const Inventory = require("../models/Inventory");
 const Trainer = require("../models/Trainer");
+const Dailyclaim = require("../models/Dailyclaim");
 
 exports.getgameinventory = async (req, res) => {
     const { id, username } = req.user;
@@ -163,6 +164,12 @@ exports.dailyClaim = async (req, res) => {
         const limitperday = creaturelimit / pet.duration;
         pet.dailyclaim = 1;
         pet.totalaccumulated += limitperday;
+
+        await Dailyclaim.create([{
+            owner: new mongoose.Types.ObjectId(id),
+            inventory: new mongoose.Types.ObjectId(petid),
+            amount: limitperday
+        }], { session });
 
         await pet.save({ session });
         await session.commitTransaction();
