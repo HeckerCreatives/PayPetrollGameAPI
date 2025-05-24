@@ -21,7 +21,7 @@ exports.getLeaderboard = async (req, res) => {
             }
 
             const eventmainte = await Maintenance.findOne({ type: "eventgame" });
-            const userRank = await Leaderboard.countDocuments({ amount: !user ?  { $gt: amount } });
+            const userRank = await Leaderboard.countDocuments({ amount: { $gt: amount } });
             const finaldata = {
                 topplayers: top10.reduce((acc, item, index) => {
                     acc[index + 1] = {
