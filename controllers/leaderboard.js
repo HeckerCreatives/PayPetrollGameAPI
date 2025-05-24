@@ -31,9 +31,9 @@ exports.getLeaderboard = async (req, res) => {
                     return acc;
                 }, {}),
                 user: {
-                    rank: userRank + 1,
-                    player_name: user.owner.username,
-                    player_score: user.amount
+                    rank: !user ? "No rank yet" : userRank + 1,
+                    player_name: !user ? username : user.owner.username,
+                    player_score: !user ? "No rank yet" : user.amount
                 },
                 event: {
                     type: eventmainte.type,
