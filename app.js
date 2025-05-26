@@ -5,13 +5,8 @@ const cookieParser = require('cookie-parser');
 const http = require("http");
 const cors = require("cors");
 require("dotenv").config();
-const cron = require('node-cron');
 
 const app = express();
-
-//  Uncomment when you created initialize function for the server
-const {initialize} = require("./initialization/initialize");
-const Inventory = require("./models/Inventory");
 
 const CORS_ALLOWED = process.env.ALLOWED_CORS
 
@@ -42,21 +37,6 @@ mongoose
 app.use(bodyParser.json({ limit: "50mb" }))
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: false, parameterLimit: 50000 }))
 app.use(cookieParser());
-
-
-cron.schedule('0 0 * * *', async () => {
-  try {
-       await Inventory.updateMany({ 
-        dailyclaim: 0, 
-        petclean: 0,
-        petfeed: 0,
-        petlove: 0
-      })
-
-      } catch (error) {
-      console.error('Failed to update daily claims:', error);
-  }
-});
 
 
 // Routes
