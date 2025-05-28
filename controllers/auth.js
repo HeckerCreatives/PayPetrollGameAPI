@@ -16,6 +16,8 @@ const Userwallets = require("../models/Userwallets");
 const StaffUserwallets = require("../models/Staffuserwallets");
 const { URL } = require('url'); // Native URL parser in Node.js
 
+const Inventoryhistory = require("../models/Inventoryhistory")
+
 const encrypt = async password => {
     const salt = await bcrypt.genSalt(10);
     return await bcrypt.hash(password, salt);
@@ -278,6 +280,10 @@ exports.gameidlogin = async(req, res) => {
 
             const token = await encrypt(privateKey)
 
+            const tempinventoryhistory = await Inventoryhistory.findOne({
+                type: { $regex: /Buy/, $options: 'i' }
+            }).sort({ amount: -1 });
+
             await Users.findByIdAndUpdate({_id: user._id}, {$set: { gametoken: token }}, { new: true })
             .then(async () => {
                 const payload = { id: user._id, username: user.username, status: user.status, gametoken: token, auth: "player" }
@@ -293,6 +299,7 @@ exports.gameidlogin = async(req, res) => {
 
                 return res.json({message: "success", data: {
                     auth: "player",
+                    rank: !tempinventoryhistory ? "Free" : tempinventoryhistory.rank,
                     token: jwtoken
                 }})
             })
