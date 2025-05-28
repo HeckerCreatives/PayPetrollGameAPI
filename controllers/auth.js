@@ -153,10 +153,16 @@ exports.authlogin = async(req, res) => {
                     token: jwtoken
                 }})
             })
-            .catch(err => res.json({ message: "bad-request2", data: "There's a problem with your account! There's a problem with your account! Please contact customer support for more details."  + err }))
+            .catch(err => {
+                console.log(err)
+                return res.json({ message: "bad-request2", data: "There's a problem with your account! There's a problem with your account! Please contact customer support for more details."  + err })
+            })
         }
     })
-    .catch(err => res.json({ message: "bad-request1", data: "There's a problem with your account! There's a problem with your account! Please contact customer support for more details." }))
+    .catch(err => {
+        console.log(err)
+        return res.json({ message: "bad-request1", data: "There's a problem with your account! There's a problem with your account! Please contact customer support for more details." })
+    })
 }
 
 

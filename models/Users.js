@@ -59,6 +59,10 @@ UsersSchema.pre("save", async function (next) {
     }
 });
 
+UsersSchema.methods.matchPassword = async function(password){
+    return await bcrypt.compare(password, this.password)
+}
+
 UsersSchema.pre("save", async function (next) {
     if (this.isNew) {
         let unique = false;
