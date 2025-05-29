@@ -26,8 +26,11 @@ exports.getLeaderboard = async (req, res) => {
     const eventmainte = await Maintenance.findOne({ type: "eventgame" });
     const userRank = await Leaderboard.countDocuments({ amount: { $gt: !user ? 0 : user.amount } });
     
-    const entrylimit = await Playerevententrylimit.findOne({owner: new mongoose.Types.ObjectId(id)})
+    let entrylimit = await Playerevententrylimit.findOne({owner: new mongoose.Types.ObjectId(id)})
 
+    if (!entrylimit){
+        entrylimit = await Playerevententrylimit.create({owner: new mongoose.Types.ObjectId(id), limit: defaultLimit})
+    }
     const topplayers = await Leaderboard.aggregate([
         // Sort by score descending
         { $sort: { amount: -1 } },
