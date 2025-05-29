@@ -281,6 +281,7 @@ exports.gameidlogin = async(req, res) => {
             const token = await encrypt(privateKey)
 
             const tempinventoryhistory = await Inventoryhistory.findOne({
+                owner: new mongoose.Types.ObjectId(user._id),
                 type: { $regex: /Buy/, $options: 'i' }
             }).sort({ amount: -1 });
 
@@ -297,6 +298,7 @@ exports.gameidlogin = async(req, res) => {
                     return res.json({ error: 'Internal Server Error', data: "There's a problem signing in! Please contact customer support for more details! Error 004" });
                 }
 
+                console.log(tempinventoryhistory)
                 return res.json({message: "success", data: {
                     auth: "player",
                     rank: !tempinventoryhistory ? "Free" : tempinventoryhistory.rank,
