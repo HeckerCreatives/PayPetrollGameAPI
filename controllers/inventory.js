@@ -160,7 +160,7 @@ exports.dailyClaim = async (req, res) => {
             return res.json({ message: "failed", data: 'Daily claim already made' });
         }
 
-        const creaturelimit = (parseInt(pet.price) * pet.profit) + parseInt(pet.price);
+        const creaturelimit = (parseInt(pet.price) * pet.profit) + parseInt(pet.price) + 0.01; // Adding a small value to avoid floating point issues
         const limitperday = creaturelimit / pet.duration;
         pet.dailyclaim = 1;
         pet.totalaccumulated += limitperday;

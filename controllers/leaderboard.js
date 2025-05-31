@@ -129,6 +129,7 @@ exports.sendeventpoints = async (req, res) => {
     }
 
     user.amount += pts
+
     entrylimit.limit -= 1;
     await user.save()
     await entrylimit.save()
