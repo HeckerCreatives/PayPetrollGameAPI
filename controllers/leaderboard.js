@@ -120,6 +120,10 @@ exports.sendeventpoints = async (req, res) => {
         entrylimit = await Playerevententrylimit.create({owner: new mongoose.Types.ObjectId(id), limit: limit})
     }
 
+    if( entrylimit.limit <= 0){
+        return res.json({ message: "bad-request", data: "You have no more entries left for today" });
+    }
+
 
     const user = await Leaderboard.findOne({ owner: new mongoose.Types.ObjectId(id) })
 
