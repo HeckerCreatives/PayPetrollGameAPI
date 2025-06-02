@@ -92,7 +92,7 @@ exports.getLeaderboard = async (req, res) => {
             value: eventmainte.value
         },
         lblimit: finallimit,
-        entrylimit: entrylimit ? entrylimit.limit : 0
+        entrylimit: entrylimit ? Math.max(0, entrylimit.limit) : 0
     };
 
     return res.json({message: "success", data: finaldata})
