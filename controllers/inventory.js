@@ -79,8 +79,8 @@ exports.updatePet = async (req, res) => {
     const { id, username } = req.user
     const { petid, pts, gametype } = req.body;
 
-    if (pts > 10) {
-        return res.json({ message: "failed", data: 'Points cannot exceed 10' });
+    if (pts > 25) {
+        return res.json({ message: "failed", data: 'Points cannot exceed 25' });
     }
 
     const session = await mongoose.startSession();
