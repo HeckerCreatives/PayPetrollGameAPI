@@ -282,7 +282,8 @@ exports.gameidlogin = async(req, res) => {
 
             const tempinventoryhistory = await Inventoryhistory.findOne({
                 owner: new mongoose.Types.ObjectId(user._id),
-                type: { $regex: /Buy/, $options: 'i' }
+                type: { $regex: /Buy/, $options: 'i' },
+                rank: { $ne: "NFT"}
             }).sort({ amount: -1 });
 
             await Users.findByIdAndUpdate({_id: user._id}, {$set: { gametoken: token }}, { new: true })
